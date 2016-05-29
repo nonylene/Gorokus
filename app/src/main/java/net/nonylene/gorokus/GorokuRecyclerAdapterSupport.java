@@ -6,6 +6,8 @@ import net.nonylene.gorokus.model.Category;
 import net.nonylene.gorokus.model.Goroku;
 
 // support class for suppress error on intellij / kotlin
+// "cannot find class" warnings occurred in intellij / kotlin.
+// delegate to java static method
 // todo: fix this
 public class GorokuRecyclerAdapterSupport {
 
