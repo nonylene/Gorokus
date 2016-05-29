@@ -18,7 +18,8 @@ class GorokuRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     var categoryList: List<Category> = listOf()
     var gorokuList: List<Goroku> = listOf()
 
-    var listener: Listener? = null
+    var gorokuListener: ((goroku: Goroku) -> Unit)? = null
+    var categoryListener: ((category: Category) -> Unit)? = null
 
     override fun getItemCount() = categoryList.size + gorokuList.size
 
@@ -73,10 +74,8 @@ class GorokuRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
 
         fun bind(goroku: Goroku) {
             GorokuRecyclerAdapterSupport.setGorokuToBinding(binding, goroku)
-            listener?.let { listener ->
-                binding.root.setOnClickListener {
-                    listener.onGorokuClick(goroku)
-                }
+            binding.root.setOnClickListener {
+                gorokuListener?.invoke(goroku)
             }
         }
     }
@@ -91,16 +90,9 @@ class GorokuRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
 
         fun bind(category: Category) {
             GorokuRecyclerAdapterSupport.setCategoryToBinding(binding, category)
-            listener?.let { listener ->
-                binding.root.setOnClickListener {
-                    listener.onCategoryClick(category)
-                }
+            binding.root.setOnClickListener {
+                categoryListener?.invoke(category)
             }
         }
-    }
-
-    interface Listener {
-        fun onCategoryClick(category: Category)
-        fun onGorokuClick(goroku: Goroku)
     }
 }
