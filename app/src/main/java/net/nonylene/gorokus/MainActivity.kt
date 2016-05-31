@@ -5,17 +5,27 @@ import android.databinding.DataBindingUtil
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Toast
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
 import net.nonylene.gorokus.databinding.MainActivityBinding
-import net.nonylene.gorokus.model.Category
-import net.nonylene.gorokus.model.newCategoryId
+import net.nonylene.gorokus.model.*
 
 class MainActivity : AppCompatActivity() {
 
     private val adapter = GorokuRecyclerAdapter()
+    private var category: Category? = null
+        set(value) {
+            if (value != null) {
+                title = getString(R.string.app_name) + " - " + value.name
+            } else {
+                title = getString(R.string.app_name)
+            }
+            field = value
+        }
 
     /**
      * call binding after [onCreate] due to lazy initialize
@@ -31,18 +41,38 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        category = realm.where(Category::class.java).equalTo("id", 1).findFirst()
+
         // initialize test data
-        if (realm.where(Category::class.java).findAll().isEmpty()) {
+        if (realm.where(Goroku::class.java).findAll().isEmpty()) {
             realm.executeTransactionAsync(Realm.Transaction { realm ->
-                val category = realm.createObject(Category::class.java)
-                category.id = newCategoryId(realm)
-                category.name = "Hoge"
-                val category2 = realm.createObject(Category::class.java)
-                category2.id = newCategoryId(realm)
-                category2.name = "HogePiyo"
-                val category3 = realm.createObject(Category::class.java)
-                category3.id = newCategoryId(realm)
-                category3.name = "HogePoPoPoe"
+                val root = realm.where(Category::class.java).equalTo("id", 1).findFirst()
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Piyo"
+                            kana = "kana,kanatest"
+                        }
+                )
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Hoge2"
+                            kana = "kana2,nonylene"
+                        }
+                )
+                val a = realm.createObject(Category::class.java).apply {
+                    id = newCategoryId(realm)
+                    name = "Hoge"
+                }
+                root.categories.add(a)
+                a.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Hoge3"
+                            kana = "kana4,test"
+                        }
+                )
             }, Realm.Transaction.OnSuccess {
                 adapter.categoryList = realm.where(Category::class.java).findAll()
                 adapter.notifyDataSetChanged()
@@ -51,15 +81,17 @@ class MainActivity : AppCompatActivity() {
 
         adapter.setHasStableIds(true)
         adapter.categoryListener = { category ->
+            this@MainActivity.category = category
+            binding.searchEditText.setText(null)
+        }
+        adapter.gorokuListener = { goroku ->
             // or copy to clipboard?
-            if (intent.getStringExtra("replace_key") == null) {
-                Toast.makeText(this, category.name, Toast.LENGTH_LONG).show()
+            if (intent.action?.equals("com.adamrocker.android.simeji.ACTION_INTERCEPT") ?: false) {
+                Toast.makeText(this, goroku.text, Toast.LENGTH_LONG).show()
             } else {
-                setResult(RESULT_OK, Intent().putExtra("replace_key", category.name))
+                setResult(RESULT_OK, Intent().putExtra("replace_key", goroku.text))
                 finish()
             }
-        }
-        adapter.gorokuListener = { category ->
         }
 
         with(binding.recyclerView) {
@@ -69,6 +101,24 @@ class MainActivity : AppCompatActivity() {
         adapter.categoryList = realm.where(Category::class.java).findAll()
         adapter.notifyDataSetChanged()
 
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                if (s.isEmpty()) {
+                    adapter.gorokuList = category!!.gorokus
+                } else {
+                    adapter.gorokuList = findAllChildGorokus(category!!).filter { it.includes(s.toString()) }
+                }
+                adapter.categoryList = findAllChildCategories(category!!).filter { it.name.contains(s.toString(), true) }
+                adapter.notifyDataSetChanged()
+            }
+
+        })
         binding.searchEditText.setText(intent.getStringExtra("replace_key"))
     }
 }
