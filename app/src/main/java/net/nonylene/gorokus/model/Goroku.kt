@@ -11,13 +11,23 @@ open class Goroku : RealmObject() {
     open var id = 0
     @Index
     open var text = ""
-    @Index
-    open var categoryPath = ""
+    open var kana = ""
     @Index
     open var count = 0
     @Index
     open var lastUsed = Date(0)
+
+    fun includes(query: String): Boolean {
+        return kanaList().plus(text).any{ it.contains(query, true) }
+    }
+
+    fun addKana(text: String) {
+        kana += "," + text
+    }
+
+    fun kanaList(): List<String> = kana.split(",")
 }
+
 
 @Synchronized
 fun newGorokuId(realm: Realm) : Int {

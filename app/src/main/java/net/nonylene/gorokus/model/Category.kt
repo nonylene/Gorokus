@@ -13,8 +13,8 @@ open class Category : RealmObject() {
     var id = 0
     @Index
     var name = ""
-    var childCategories = RealmList<Category>()
-    var childGorokus = RealmList<Goroku>()
+    var categories = RealmList<Category>()
+    var gorokus = RealmList<Goroku>()
     @Index
     var count = 0
     @Index
@@ -24,4 +24,28 @@ open class Category : RealmObject() {
 @Synchronized
 fun newCategoryId(realm: Realm): Int {
     return realm.where(Category::class.java).max("id").toInt() + 1
+}
+
+fun findAllChildGorokus(category: Category) : List<Goroku> {
+    return findAllChildCategories(category).plus(category).fold(emptyList()) { list, category ->
+        list.plus(category.gorokus)
+    }
+}
+
+fun findAllChildCategories(category: Category) : List<Category> {
+    if (category.categories.isEmpty()) {
+        return listOf()
+    } else {
+        return findAllChildCategoriesInternal(category)
+    }
+}
+
+private fun findAllChildCategoriesInternal(category: Category) : List<Category> {
+  if (category.categories.isEmpty()) {
+      return listOf(category)
+  } else {
+      return category.categories.fold(emptyList()) { list, category ->
+          list.plus(findAllChildCategoriesInternal(category))
+      }
+  }
 }
