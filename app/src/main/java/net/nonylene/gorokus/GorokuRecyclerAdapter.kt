@@ -33,7 +33,7 @@ class GorokuRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
         return when (viewType) {
-            TYPE_TEXT -> GorokuItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_category, parent, false))
+            TYPE_TEXT -> GorokuItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_goroku, parent, false))
             TYPE_CATEGORY -> CategoryItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_category, parent, false))
             else -> null
         }
@@ -73,7 +73,7 @@ class GorokuRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         }
 
         fun bind(goroku: Goroku) {
-            GorokuRecyclerAdapterSupport.setGorokuToBinding(binding, goroku)
+            BindingSupport.setGorokuToGorokuBinding(binding, goroku)
             binding.root.setOnClickListener {
                 gorokuListener?.invoke(goroku)
             }
@@ -89,7 +89,7 @@ class GorokuRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         }
 
         fun bind(category: Category) {
-            GorokuRecyclerAdapterSupport.setCategoryToBinding(binding, category)
+            BindingSupport.setCategoryToCategoryBinding(binding, category)
             binding.root.setOnClickListener {
                 categoryListener?.invoke(category)
             }

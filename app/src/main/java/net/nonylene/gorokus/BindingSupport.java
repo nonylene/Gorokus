@@ -9,13 +9,13 @@ import net.nonylene.gorokus.model.Goroku;
 // "cannot find class" warnings occurred in intellij / kotlin.
 // delegate to java static method
 // todo: fix this
-public class GorokuRecyclerAdapterSupport {
+public class BindingSupport {
 
-    public static void setCategoryToBinding(RecyclerItemCategoryBinding binding, Category category) {
+    public static void setCategoryToCategoryBinding(RecyclerItemCategoryBinding binding, Category category) {
        binding.setCategory(category);
     }
 
-    public static void setGorokuToBinding(RecyclerItemGorokuBinding binding, Goroku category) {
+    public static void setGorokuToGorokuBinding(RecyclerItemGorokuBinding binding, Goroku category) {
         binding.setGoroku(category);
     }
 }
