@@ -1,5 +1,7 @@
 package net.nonylene.gorokus
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.support.v7.app.AppCompatActivity
@@ -91,6 +93,10 @@ class MainActivity : AppCompatActivity() {
             } else {
                 setResult(RESULT_OK, Intent().putExtra("replace_key", goroku.text))
                 finish()
+            } else {
+                (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).primaryClip =
+                        ClipData.newPlainText("Copied goroku", goroku.text)
+                Toast.makeText(this, "Copied to clipboard", Toast.LENGTH_SHORT).show()
             }
         }
 
