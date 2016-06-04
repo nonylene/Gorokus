@@ -16,6 +16,8 @@ import io.realm.RealmConfiguration
 import net.nonylene.gorokus.databinding.MainActivityBinding
 import net.nonylene.gorokus.model.*
 
+val MUSHROOM_ACTION = "com.adamrocker.android.simeji.ACTION_INTERCEPT"
+
 class MainActivity : AppCompatActivity() {
 
     private val adapter = GorokuRecyclerAdapter()
@@ -88,9 +90,10 @@ class MainActivity : AppCompatActivity() {
         }
         adapter.gorokuListener = { goroku ->
             // or copy to clipboard?
-            if (intent.action?.equals("com.adamrocker.android.simeji.ACTION_INTERCEPT") ?: false) {
-                Toast.makeText(this, goroku.text, Toast.LENGTH_LONG).show()
-            } else {
+            realm.executeTransaction {
+                goroku.count++
+            }
+            if (intent.action?.equals(MUSHROOM_ACTION) ?: false) {
                 setResult(RESULT_OK, Intent().putExtra("replace_key", goroku.text))
                 finish()
             } else {
