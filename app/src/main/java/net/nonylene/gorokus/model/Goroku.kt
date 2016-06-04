@@ -6,6 +6,7 @@ import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import java.util.*
 
+// todo: backlinks
 open class Goroku : RealmObject() {
     @PrimaryKey
     open var id = 0
