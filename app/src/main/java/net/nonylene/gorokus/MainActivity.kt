@@ -20,6 +20,9 @@ val MUSHROOM_ACTION = "com.adamrocker.android.simeji.ACTION_INTERCEPT"
 
 class MainActivity : AppCompatActivity() {
 
+    // todo: move to backlinks
+    private val categoryHistory = mutableListOf(ROOT_CATEGORY_ID)
+
     private val adapter = GorokuRecyclerAdapter()
     private var category: Category? = null
         set(value) {
@@ -45,12 +48,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        category = realm.where(Category::class.java).equalTo("id", 1).findFirst()
+        category = rootCategory(realm)
 
         // initialize test data
         if (realm.where(Goroku::class.java).findAll().isEmpty()) {
             realm.executeTransactionAsync(Realm.Transaction { realm ->
-                val root = realm.where(Category::class.java).equalTo("id", 1).findFirst()
+                val root = rootCategory(realm)
                 root.gorokus.add(
                         realm.createObject(Goroku::class.java).apply {
                             id = newGorokuId(realm)
@@ -78,15 +81,18 @@ class MainActivity : AppCompatActivity() {
                         }
                 )
             }, Realm.Transaction.OnSuccess {
-                adapter.categoryList = realm.where(Category::class.java).findAll()
+                adapter.categoryList = findAllChildCategories(rootCategory(realm))
                 adapter.notifyDataSetChanged()
             })
         }
 
         adapter.setHasStableIds(true)
         adapter.categoryListener = { category ->
+            realm.executeTransaction {
+                category.count++
+            }
             this@MainActivity.category = category
-            binding.searchEditText.setText(null)
+            categoryHistory.add(category.id)
         }
         adapter.gorokuListener = { goroku ->
             // or copy to clipboard?
@@ -129,5 +135,14 @@ class MainActivity : AppCompatActivity() {
 
         })
         binding.searchEditText.setText(intent.getStringExtra("replace_key"))
+    }
+
+    override fun onBackPressed() {
+        categoryHistory.removeAt(categoryHistory.lastIndex)
+        if (categoryHistory.isEmpty()) {
+            super.onBackPressed()
+        } else {
+            category = realm.where(Category::class.java).equalTo("id", categoryHistory.last()).findFirst()
+        }
     }
 }
