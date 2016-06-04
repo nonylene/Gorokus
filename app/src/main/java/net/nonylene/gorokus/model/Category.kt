@@ -8,6 +8,9 @@ import io.realm.RealmObject
 import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 
+val ROOT_CATEGORY_ID = 1
+
+// todo: backlinks
 open class Category : RealmObject() {
     @PrimaryKey
     var id = 0
@@ -48,4 +51,8 @@ private fun findAllChildCategoriesInternal(category: Category) : List<Category> 
           list.plus(findAllChildCategoriesInternal(category))
       }
   }
+}
+
+fun rootCategory(realm: Realm): Category {
+    return realm.where(Category::class.java).equalTo("id", ROOT_CATEGORY_ID).findFirst()
 }
