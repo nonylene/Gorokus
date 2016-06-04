@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
                 title = getString(R.string.app_name)
             }
             field = value
+            binding.searchEditText.text = null
         }
 
     /**
@@ -68,11 +69,51 @@ class MainActivity : AppCompatActivity() {
                             kana = "kana2,nonylene"
                         }
                 )
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Hoge2"
+                            kana = "kana2,nonylene"
+                        }
+                )
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Hoge3"
+                            kana = "kana2,nonylene"
+                        }
+                )
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Hoge4"
+                            kana = "kana2,nonylene"
+                        }
+                )
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "picopico"
+                            kana = "kana2,nonylene"
+                        }
+                )
+                root.gorokus.add(
+                        realm.createObject(Goroku::class.java).apply {
+                            id = newGorokuId(realm)
+                            text = "Hoge2"
+                            kana = "kana2,nonylene"
+                        }
+                )
                 val a = realm.createObject(Category::class.java).apply {
                     id = newCategoryId(realm)
                     name = "Hoge"
                 }
+                val b = realm.createObject(Category::class.java).apply {
+                    id = newCategoryId(realm)
+                    name = "P"
+                }
                 root.categories.add(a)
+                root.categories.add(b)
                 a.gorokus.add(
                         realm.createObject(Goroku::class.java).apply {
                             id = newGorokuId(realm)
